@@ -6,11 +6,11 @@ public class NBody{
 		return radius;
 	}
 
-	public static Body[] readBodies(String filename){
+	public static Planet[] readBodies(String filename){
 		In in = new In(filename);
 		int numberOfPlanets = in.readInt();
 		double radius = in.readDouble();
-		Body[] bodies = new Body[numberOfPlanets];
+		Planet[] bodies = new Planet[numberOfPlanets];
 		int i = 0;
 		while(i < numberOfPlanets){
 			double xxPos = in.readDouble();
@@ -19,7 +19,7 @@ public class NBody{
 			double yyVel = in.readDouble();
 			double mass = in.readDouble();
 			String img = in.readString();
-			bodies[i] = new Body(xxPos, yyPos, xxVel, yyVel, mass, img);
+			bodies[i] = new Planet(xxPos, yyPos, xxVel, yyVel, mass, img);
 			i++;
 		}
 		return bodies;
@@ -30,7 +30,7 @@ public class NBody{
 		double dt = Double.parseDouble(args[1]);
 		String filename = args[2];
 		double radius = readRadius(filename);
-		Body[] bodies = readBodies(filename);
+		Planet[] bodies = readBodies(filename);
 
 		StdDraw.enableDoubleBuffering();
 		StdDraw.setScale((-1) * radius, radius);
@@ -48,7 +48,7 @@ public class NBody{
 			}
 			StdDraw.clear();
 			StdDraw.picture(0,0,"images/starfield.jpg");
-			for(Body b:bodies){
+			for(Planet b:bodies){
 				b.draw();
 			}
 			StdDraw.show();
