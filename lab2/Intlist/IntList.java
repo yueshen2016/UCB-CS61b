@@ -83,8 +83,10 @@ public class IntList {
     public static IntList dcatenate(IntList A, IntList B) {
         //TODO:  fill in method
         IntList pointer = A;
-        if(pointer == null)
+        if(pointer == null) {
             pointer = B;
+            return pointer;
+        }
         if (pointer.rest == null)
             pointer.rest = B;
         else {
