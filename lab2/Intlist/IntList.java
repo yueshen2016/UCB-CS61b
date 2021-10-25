@@ -82,7 +82,16 @@ public class IntList {
 
     public static IntList dcatenate(IntList A, IntList B) {
         //TODO:  fill in method
-        return null;
+        IntList pointer = A;
+        if(pointer == null)
+            pointer = B;
+        if (pointer.rest == null)
+            pointer.rest = B;
+        else {
+            pointer = pointer.rest;
+            dcatenate(pointer, B);
+        }
+        return A;
     }
 
     /**
@@ -91,7 +100,43 @@ public class IntList {
      */
     public static IntList catenate(IntList A, IntList B) {
         //TODO:  fill in method
-        return null;
+        /* If A and B are null linked list
+        **/
+        if (A == null && B == null)
+            return null;
+        IntList newList;
+        IntList ptr;
+        if (A != null) {
+            newList = new IntList(A.first, null);
+            IntList ptrNew = newList;
+            ptr = A.rest;
+            while (ptr != null) {
+                ptrNew.rest = new IntList(ptr.first, null);
+                ptr = ptr.rest;
+                ptrNew = ptrNew.rest;
+            }
+            if (B != null){
+                ptrNew.rest = new IntList(B.first, null);
+                ptrNew = ptrNew.rest;
+                ptr = B.rest;
+                while (ptr != null) {
+                    ptrNew.rest = new IntList(ptr.first, null);
+                    ptr = ptr.rest;
+                    ptrNew = ptrNew.rest;
+                }
+            }
+        }
+        else{
+            newList = new IntList(B.first, null);
+            IntList ptrNew = newList;
+            ptr = B.rest;
+            while (ptr != null) {
+                ptrNew.rest = new IntList(ptr.first, null);
+                ptr = ptr.rest;
+                ptrNew = ptrNew.rest;
+            }
+        }
+        return newList;
     }
 
 
