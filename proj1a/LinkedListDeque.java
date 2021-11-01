@@ -33,6 +33,7 @@ public class LinkedListDeque<T> {
      *
      * @param other the LinkedListDeque object that will be non-destructively copied
      */
+    /*
     public LinkedListDeque(LinkedListDeque other) {
         this.sentinel =  new TNode(null, null, null);
         this.sentinel.next = this.sentinel;
@@ -47,6 +48,7 @@ public class LinkedListDeque<T> {
         }
         this.sentinel.prev = ptrNew;
     }
+   */
 
     /** Adds an item of type T to the front of the deque.
      *
@@ -96,8 +98,7 @@ public class LinkedListDeque<T> {
     public void printDeque() {
         if (this.size == 0) {
             System.out.println("Empty Deque.");
-        }
-        else {
+        } else {
             TNode ptr = this.sentinel.next;
             while (ptr != sentinel) {
                 System.out.print(ptr.value);
@@ -116,8 +117,7 @@ public class LinkedListDeque<T> {
     public T removeFirst() {
         if (this.size == 0) {
             return null;
-        }
-        else{
+        } else {
             TNode ptr = this.sentinel.next;
             this.sentinel.next = ptr.next;
             ptr.next.prev = this.sentinel;
@@ -134,8 +134,7 @@ public class LinkedListDeque<T> {
     public T removeLast() {
         if (this.size == 0) {
             return null;
-        }
-        else {
+        } else {
             TNode ptr = this.sentinel.prev;
             this.sentinel.prev = ptr.prev;
             ptr.prev.next = this.sentinel;
@@ -185,8 +184,7 @@ public class LinkedListDeque<T> {
     private T returnIndexNodeValue(TNode node, int index) {
         if (index == 0) {
             return node.value;
-        }
-        else {
+        } else {
             return returnIndexNodeValue(node.next, index - 1);
         }
     }

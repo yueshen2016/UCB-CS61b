@@ -33,18 +33,21 @@ public class ArrayDeque<T> {
      *
      * @param other Array list to be copied from
      */
+
+    /*
     public ArrayDeque(ArrayDeque other) {
         this.items = (T[]) new Object[other.items.length];
         this.firstIndex = other.firstIndex;
         this.lastIndex = other.lastIndex;
         this.size = other.size;
 
-        int i = 0;
-        while (i < this.size) {
+        int i = 1;
+        while (i <= this.size) {
             items[realIndex(firstIndex + i, items.length)] =
                     (T) other.items[realIndex(firstIndex + i, other.items.length)];
         }
     }
+     */
 
     /** Resize is a helper function, just to make the length of the array two times of before.
      *
@@ -142,9 +145,10 @@ public class ArrayDeque<T> {
         T[] ptr = items;
         items = (T[]) new Object[ptr.length / 2];
         for (int i = 1; i <= size; i++) {
-            items[realIndex(firstIndex + i, items.length)] = ptr[realIndex(firstIndex + i, ptr.length)];
+            items[realIndex(firstIndex + i, items.length)] =
+                    ptr[realIndex(firstIndex + i, ptr.length)];
         }
-            firstIndex = realIndex(firstIndex, items.length);
+        firstIndex = realIndex(firstIndex, items.length);
         lastIndex = realIndex(firstIndex + size + 1, items.length);
     }
 
@@ -153,7 +157,7 @@ public class ArrayDeque<T> {
      *
      * @return the item at the front of the deque
      */
-    public T removeLast(){
+    public T removeLast() {
         if (size == 0) {
             return null;
         }
