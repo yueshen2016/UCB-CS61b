@@ -3,7 +3,7 @@ import static org.junit.Assert.*;
 
 public class TestOffByN {
     @Test
-    public void TestEqualCharts() {
+    public void testEqualCharts() {
         OffByN obn = new OffByN(3);
         assertTrue(obn.equalChars('a', 'd'));
         assertTrue(obn.equalChars('b', 'e'));
