@@ -1,8 +1,8 @@
 package huglife;
 
-import java.util.ArrayList;
+import creatures.Plip;
+
 import java.util.Map;
-import java.util.List;
 
 /**
  * @author Josh Hug

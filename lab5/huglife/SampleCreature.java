@@ -1,8 +1,9 @@
 package huglife;
 
+import creatures.Plip;
+
 import java.awt.Color;
 import java.util.Map;
-import java.util.List;
 
 /**
  * Example of a creature you might create for your world.
@@ -96,6 +97,7 @@ public class SampleCreature extends Creature {
      * <p>
      * You will probably find the HugLifeUtils library useful for generating
      * random information.
+     * @return
      */
     public void stay() {
         r += HugLifeUtils.randomInt(-colorShift, colorShift);
