@@ -17,13 +17,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static bearmaps.proj2c.utils.Constants.SEMANTIC_STREET_GRAPH;
-import static bearmaps.proj2c.utils.Constants.ROUTE_LIST;
+import static bearmaps.proj2c.utils.Constants.*;
 
 /**
  * Handles requests from the web browser for map images. These images
  * will be rastered into one large image to be displayed to the user.
- * @author rahul, Josh Hug, _________
+ * @author rahul, Josh Hug, James Shen
  */
 public class RasterAPIHandler extends APIRouteHandler<Map<String, Double>, Map<String, Object>> {
 
@@ -87,8 +86,85 @@ public class RasterAPIHandler extends APIRouteHandler<Map<String, Double>, Map<S
         //System.out.println("yo, wanna know the parameters given by the web browser? They are:");
         //System.out.println(requestParams);
         Map<String, Object> results = new HashMap<>();
-        System.out.println("Since you haven't implemented RasterAPIHandler.processRequest, nothing is displayed in "
-                + "your browser.");
+        //System.out.println("Since you haven't implemented RasterAPIHandler.processRequest, nothing is displayed in "
+        //        + "your browser.");
+
+        //Calculate depth first
+        int depth = 0;
+        double LonDPP0 = (ROOT_LRLON - ROOT_ULLON) / TILE_SIZE;
+        double LonDPP = LonDPP0;
+        // download the request parameters
+        double lrlon = requestParams.get("lrlon");
+        double ullon = requestParams.get("ullon");
+        double w = requestParams.get("w");
+        double h = requestParams.get("h");
+        double ullat = requestParams.get("ullat");
+        double lrlat = requestParams.get("lrlat");
+
+        double LonDPPQueryBox = (lrlon - ullon) / w;
+        boolean overLimit = true;
+        for (int i = 0; i <= 7; i++) {
+            if (LonDPP <= LonDPPQueryBox) {
+                depth = i;
+                overLimit = false;
+                break;
+            }
+            LonDPP = LonDPP / 2;
+        }
+        if (overLimit) depth = 7;
+
+        // After determine the depth, check how many tiles do we need to return
+        double raster_ul_lon, raster_ul_lat, raster_lr_lon, raster_lr_lat;
+        // if the starting point is righter compared to the given area, lower compared to given area
+        // if the ending point is lefter compared to the given area, upper compared to the given area
+        // if the iput is not valid: ullon > lrlon or ullat < lrlat
+        // the request will not be processed successfully
+        if ((ullon > ROOT_LRLON) || (ullat < ROOT_LRLAT) || (lrlon < ROOT_ULLON) || (lrlat > ROOT_ULLAT) || (ullon > lrlon) || (ullat < lrlat)) {
+            results.put("raster_ul_lon", 0);
+            results.put("raster_ul_lat", 0);
+            results.put("raster_lr_lon", 0);
+            results.put("raster_lr_lat", 0);
+            results.put("query_success", false);
+            results.put("render_grid", null);
+            results.put("depth", depth);
+            return results;
+        } else {
+            if (ullon < ROOT_ULLON) ullon = ROOT_ULLON;
+            if (ullat > ROOT_ULLAT) ullat = ROOT_ULLAT;
+            if (lrlon > ROOT_LRLON) lrlon = ROOT_LRLON;
+            if (lrlat < ROOT_LRLAT) lrlat = ROOT_LRLAT;
+            double unitW = (ROOT_LRLON - ROOT_ULLON) / Math.pow(2, depth);
+            double unitH = (ROOT_ULLAT - ROOT_LRLAT) / Math.pow(2, depth);
+            // start lon
+            int startLon = (int) (((ullon) - ROOT_ULLON) / unitW);
+            if (ullon == ROOT_LRLON) startLon = startLon - 1;
+            raster_ul_lon = ROOT_ULLON + (double) startLon * unitW;
+            // end lon
+            int endLon = (int) (((lrlon) - ROOT_ULLON) / unitW);
+            if (lrlon == ROOT_LRLON) endLon = endLon - 1;
+            raster_lr_lon = ROOT_ULLON + (double) (endLon + 1) * unitW;
+            // start lat
+            int startLat = (int) ((ROOT_ULLAT - ullat) / unitH);
+            if (ullat == ROOT_LRLAT) startLat = startLat - 1;
+            raster_ul_lat = ROOT_ULLAT - (double) startLat * unitH;
+            // end lat
+            int endLat = (int) ((ROOT_ULLAT - lrlat) / unitH);
+            if (lrlat == ROOT_LRLAT) endLat = endLat - 1;
+            raster_lr_lat = ROOT_ULLAT - (double) (endLat + 1) * unitH;
+            String[][] render_grid = new String[endLat - startLat + 1][endLon - startLon + 1];
+            for (int col = startLat; col <= endLat; col++) {
+                for (int row = startLon; row <= endLon; row++) {
+                    render_grid[col - startLat][row - startLon] = "d" + depth + "_x" + row + "_y" + col + ".png";
+                 }
+            }
+            results.put("raster_ul_lon", raster_ul_lon);
+            results.put("raster_ul_lat", raster_ul_lat);
+            results.put("raster_lr_lon", raster_lr_lon);
+            results.put("raster_lr_lat", raster_lr_lat);
+            results.put("query_success", true);
+            results.put("render_grid", render_grid);
+            results.put("depth", depth);
+        }
         return results;
     }
 
@@ -205,8 +281,9 @@ public class RasterAPIHandler extends APIRouteHandler<Map<String, Double>, Map<S
         BufferedImage tileImg = null;
         if (tileImg == null) {
             try {
-                File in = new File(imgPath);
-                tileImg = ImageIO.read(in);
+//                File in = new File(imgPath);
+//                tileImg = ImageIO.read(in);
+                tileImg = ImageIO.read(Thread.currentThread().getContextClassLoader().getResource(imgPath));
             } catch (IOException | NullPointerException e) {
                 e.printStackTrace();
             }

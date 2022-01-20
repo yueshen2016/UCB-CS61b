@@ -1,5 +1,9 @@
 package bearmaps.proj2c;
 
+import bearmaps.hw4.AStarSolver;
+import bearmaps.hw4.WeightedEdge;
+
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -7,7 +11,7 @@ import java.util.regex.Pattern;
 
 /**
  * This class acts as a helper for the RoutingAPIHandler.
- * @author Josh Hug, ______
+ * @author Josh Hug, James Shen
  */
 public class Router {
 
@@ -24,10 +28,10 @@ public class Router {
      */
     public static List<Long> shortestPath(AugmentedStreetMapGraph g, double stlon, double stlat,
                                           double destlon, double destlat) {
-        //long src = g.closest(stlon, stlat);
-        //long dest = g.closest(destlon, destlat);
+        long src = g.closest(stlon, stlat);
+        long dest = g.closest(destlon, destlat);
         //return new WeirdSolver<>(g, src, dest, 20).solution();
-        return null;
+        return new AStarSolver<>(g, src, dest, 20).solution();
     }
 
     /**
@@ -40,7 +44,59 @@ public class Router {
      */
     public static List<NavigationDirection> routeDirections(AugmentedStreetMapGraph g, List<Long> route) {
         /* fill in for part IV */
-        return null;
+        if (route.size() <= 1) {
+            return null;
+        }
+        LinkedList<NavigationDirection> directionList = new LinkedList<>();
+        long prevNode = route.get(0);
+        long currNode = route.get(1);
+        NavigationDirection start = generateNavigation(g, prevNode, currNode, 0);
+        directionList.add(start);
+        if (route.size() <= 2) {
+            return directionList;
+        }
+        for (int i = 2; i < route.size(); i++) {
+            Long nextNode = route.get(i);
+            String currWay = directionList.getLast().way;
+            String nextWay = null;
+            List<WeightedEdge<Long>> neighbors = g.neighbors(currNode);
+            for (WeightedEdge<Long> neighbor : neighbors) {
+                if (neighbor.to().equals(nextNode)) {
+                    nextWay = neighbor.getName();
+                    break;
+                }
+            }
+            if (nextWay == null) nextWay = NavigationDirection.UNKNOWN_ROAD;
+            double currBearing = NavigationDirection.bearing(g.lon(prevNode), g.lon(currNode), g.lat(prevNode), g.lat(currNode));
+            double nextBearing = NavigationDirection.bearing(g.lon(currNode), g.lon(nextNode), g.lat(currNode), g.lat(nextNode));
+            int dir = NavigationDirection.getDirection(currBearing, nextBearing);
+
+            if (currWay.equals(nextWay)) {
+                directionList.getLast().distance += g.distance(currNode, nextNode);
+            } else {
+                NavigationDirection navigation = generateNavigation(g, currNode, nextNode, dir);
+                directionList.add(navigation);
+            }
+            prevNode = currNode;
+            currNode = nextNode;
+        }
+        return directionList;
+    }
+
+    private static NavigationDirection generateNavigation (AugmentedStreetMapGraph g, long prevNode, long currNode, int dir) {
+        NavigationDirection navigation = new NavigationDirection();
+        navigation.direction = dir;
+        navigation.distance = g.distance(prevNode, currNode);
+        List<WeightedEdge<Long>> neighbors = g.neighbors(prevNode);
+        String way = null;
+        for (WeightedEdge<Long> neighbor : neighbors) {
+            if (neighbor.to().equals(currNode)) {
+                way = neighbor.getName();
+                break;
+            }
+        }
+        if (way != null) navigation.way = way;
+        return navigation;
     }
 
     /**
@@ -196,8 +252,8 @@ public class Router {
         public boolean equals(Object o) {
             if (o instanceof NavigationDirection) {
                 return direction == ((NavigationDirection) o).direction
-                    && way.equals(((NavigationDirection) o).way)
-                    && distance == ((NavigationDirection) o).distance;
+                        && way.equals(((NavigationDirection) o).way)
+                        && distance == ((NavigationDirection) o).distance;
             }
             return false;
         }

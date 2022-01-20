@@ -71,12 +71,12 @@ public class StreetMapGraph implements AStarGraph<Long> {
     private static StreetMapGraph readFromXML(String filename) {
         StreetMapGraph smg = new StreetMapGraph();
         try {
-            File inputFile = new File(filename);
-            FileInputStream inputStream = new FileInputStream(inputFile);
+//            File inputFile = new File(filename);
+//            FileInputStream inputStream = new FileInputStream(inputFile);
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser saxParser = factory.newSAXParser();
             GraphBuildingHandler gbh = new GraphBuildingHandler(smg);
-            saxParser.parse(inputStream, gbh);
+            saxParser.parse(Thread.currentThread().getContextClassLoader().getResourceAsStream(filename), gbh);
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         }
@@ -179,7 +179,7 @@ public class StreetMapGraph implements AStarGraph<Long> {
      *
      * @source Kevin Lowe & Antares Chen, and https://www.movable-type.co.uk/scripts/latlong.html
      **/
-    private double distance(double lonV, double lonW, double latV, double latW) {
+    protected double distance(double lonV, double lonW, double latV, double latW) {
         double phi1 = Math.toRadians(latV);
         double phi2 = Math.toRadians(latW);
         double dphi = Math.toRadians(latW - latV);
